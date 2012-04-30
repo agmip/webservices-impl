@@ -1,7 +1,5 @@
 package org.agmip.webservices.impl.resources;
 
-import java.util.HashMap;
-
 import com.yammer.metrics.annotation.Timed;
 import com.yammer.dropwizard.logging.Log;
 
@@ -28,6 +26,7 @@ import com.basho.riak.client.bucket.Bucket;
 import org.agmip.core.types.AdvancedHashMap;
 import org.agmip.webservices.impl.api.CleanDataset;
 import org.agmip.webservices.impl.api.Dataset;
+//import org.agmip.webservices.impl.api.DatasetInfo;
 
 @Path("/datasets/")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -50,9 +49,8 @@ public class DatasetsResource {
 
     @POST
     @Timed
-    public HashMap createDataset(@Valid CleanDataset pureData) {
+    public Dataset.DatasetInfo createDataset(@Valid CleanDataset pureData) {
         AdvancedHashMap<String,String> dataset = pureData.getData();
-        HashMap returnData = new HashMap();
         String crc = dataset.remove("system_crc");
         Dataset data = new Dataset(dataset);
         if(crc != null && ! crc.equals(data.getCrc())) {
@@ -64,14 +62,12 @@ public class DatasetsResource {
                 throw new WebApplicationException(Response.status(400).entity("This experiment already exists in the database").build());
             }
             bucket.store(data.getId(), dataset).execute();
-            returnData.put("id", data.getId());
-            returnData.put("crc", data.getCrc());
             // Don't really keep this.
             bucket.delete(data.getId()).execute();
         } catch( RiakException e) {
             throw new WebApplicationException(Response.status(400).entity(e.getMessage()).build());
         }
-        return returnData;
+        return data.getDatasetInfo();
     }
 
     @GET

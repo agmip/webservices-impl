@@ -11,6 +11,27 @@ import com.google.common.hash.HashFunction;
 public class Dataset extends CleanDataset {
     private final HashFunction hashFunc = Hashing.sha1();
 
+    public static class DatasetInfo {
+        @JsonProperty
+        private final String id;
+
+        @JsonProperty
+        private final String crc;
+
+        public DatasetInfo(String id, String crc) {
+            this.id = id;
+            this.crc = crc;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getCrc() {
+            return crc;
+        }
+    }
+
     @NotEmpty
     @JsonProperty
     private final String id;
@@ -54,5 +75,9 @@ public class Dataset extends CleanDataset {
 
     public String cheapCRC() {
         return hashFunc.newHasher().putString(this.data.toString()).hash().toString();
+    }
+
+    public DatasetInfo getDatasetInfo() {
+        return new Dataset.DatasetInfo(id, crc);
     }
 }
