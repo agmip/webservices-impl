@@ -1,5 +1,7 @@
 package org.agmip.webservices.impl.api;
 
+import java.util.HashMap;
+
 import com.yammer.dropwizard.logging.Log;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -47,19 +49,19 @@ public class Dataset extends CleanDataset {
         this.data = new AdvancedHashMap();
     }
 
-    public Dataset(AdvancedHashMap<String,String> data) {
+    public Dataset(AdvancedHashMap<String,Object> data) {
         this.data = data;
         this.id = this.cheapCRC();
         this.crc = this.cheapCRC();
     }
 
-    public Dataset(String id, AdvancedHashMap<String,String> data) {
+    public Dataset(String id, AdvancedHashMap<String,Object> data) {
         this.data = data;
         this.id = id;
         this.crc = this.cheapCRC();
     }
 
-    public Dataset(String id, String crc, AdvancedHashMap<String,String> data) {
+    public Dataset(String id, String crc, AdvancedHashMap<String,Object> data) {
         this.data = data;
         this.id = id;
         this.crc = crc;
@@ -74,7 +76,11 @@ public class Dataset extends CleanDataset {
     } 
 
     public String cheapCRC() {
-        return hashFunc.newHasher().putString(this.data.toString()).hash().toString();
+        // Ignore the crc and id
+        HashMap cleanedData = new HashMap(this.data);
+        cleanedData.remove("system_crc");
+        cleanedData.remove("id");
+        return hashFunc.newHasher().putString(cleanedData.toString()).hash().toString();
     }
 
     public DatasetInfo getDatasetInfo() {

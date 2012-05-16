@@ -7,17 +7,17 @@ import org.agmip.core.types.AdvancedHashMap;
 public class CleanDataset {
     @NotEmpty
     @JsonProperty
-    protected AdvancedHashMap<String,String> data;
+    protected AdvancedHashMap<String,Object> data;
 
     public CleanDataset() {
         this.data = null;
     }
 
-    public CleanDataset(AdvancedHashMap<String,String> data) {
+    public CleanDataset(AdvancedHashMap<String,Object> data) {
         this.data = data;
     }
 
-    public AdvancedHashMap<String,String> getData() {
+    public AdvancedHashMap<String,Object> getData() {
         return data;
     }
 }

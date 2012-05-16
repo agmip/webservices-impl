@@ -19,6 +19,9 @@ public class RiakConfig {
     @JsonProperty
     private String bucketName;
 
+    @JsonProperty
+    private String connectionType = "pb";
+
     public String[] getHosts() {
         return hosts;
     }
@@ -29,5 +32,9 @@ public class RiakConfig {
 
     public String getBucketName() {
         return bucketName;
+    }
+
+    public String getConnectionType() {
+        return connectionType;
     }
 }

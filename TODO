@@ -1,0 +1,5 @@
+[x][REQ] Add metadata config (cv)
+[x][REQ] Implement metadata config (cv)
+[x][REQ] Work on basic weights system (cv)
+[ ][REQ] MapReduce search interface
+[ ][REQ] MapCache (simple at this point)

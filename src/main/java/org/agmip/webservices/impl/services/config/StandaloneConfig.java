@@ -8,8 +8,16 @@ public class StandaloneConfig extends Configuration {
     @NotNull
     @JsonProperty
     private DatasetConfig dataset = new DatasetConfig();
-
+    
+    @NotNull
+    @JsonProperty
+    private MetadataConfig metadata = new MetadataConfig();
+    
     public DatasetConfig getDatasetConfig() {
         return dataset;
     }
+    
+    public MetadataConfig getMetadataConfig() {
+        return metadata;
+    }    
 }

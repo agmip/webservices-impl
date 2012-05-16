@@ -6,4 +6,5 @@ dataset:
             - "127.0.0.1:8093"
             - "127.0.0.1:8094"
         bucketName: "ace"
+        connectionType: "http"
 
