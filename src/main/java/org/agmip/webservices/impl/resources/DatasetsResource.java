@@ -87,6 +87,7 @@ public class DatasetsResource {
             }
             // Overwrite any ID given by the user. We should generate it.
             dataset.put("id", data.getId());
+            dsMetadata.put("id", data.getId());
             dataset.put("system_crc", data.getCrc());
             bucket.store(data.getId(), dataset).execute();
         } catch( RiakException e) {
