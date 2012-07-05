@@ -1,0 +1,29 @@
+package org.agmip.webservices.impl.resources;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+<<<<<<< HEAD
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+=======
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.MediaType;
+>>>>>>> 2bd8a2ebe47d7baae9e5f1e9cc2e759fc8fee8d6
+
+@Path("/cache/")
+@Produces(MediaType.APPLICATION_JSON)
+public class CacheResource {
+    
+    @Path("/map")
+    @GET
+    public String getMapCache() {
+<<<<<<< HEAD
+        return "{}";
+=======
+>>>>>>> 2bd8a2ebe47d7baae9e5f1e9cc2e759fc8fee8d6
+    }
+}
