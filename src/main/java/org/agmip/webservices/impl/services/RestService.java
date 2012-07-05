@@ -7,6 +7,7 @@ import com.yammer.dropwizard.Service;
 import org.agmip.webservices.impl.core.RiakPBConnectionFactory;
 import org.agmip.webservices.impl.core.RiakHttpConnectionFactory;
 import org.agmip.webservices.impl.managers.MetadataManager;
+import org.agmip.webservices.impl.managers.AkkaCacheManager;
 import org.agmip.webservices.impl.resources.DatasetsResource;
 import org.agmip.webservices.impl.resources.QueryResource;
 import org.agmip.webservices.impl.services.config.StandaloneConfig;
@@ -37,7 +38,7 @@ public class RestService extends Service<StandaloneConfig> {
         final String   mdRiakConnectionType = config.getMetadataConfig().getRiakConfig().getConnectionType();
         final IRiakClient dsRiak;
         final IRiakClient mdRiak;
-       
+
         // Riak clients
         if(dsRiakConnectionType.equals("pb")) {
             LOG.debug("Using protobuffers");
@@ -55,6 +56,7 @@ public class RestService extends Service<StandaloneConfig> {
          }
  
         env.manage(new MetadataManager("metadata.csv"));
+        env.manage(new AkkaCacheManager());
         env.addResource(new DatasetsResource(dsRiak, dsRiakBucket, mdRiak, mdRiakBucket));
         env.addResource(new QueryResource(mdRiak, mdRiakBucket));
     }
