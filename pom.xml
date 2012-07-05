@@ -42,12 +42,12 @@
         <dependency>
             <groupId>org.agmip</groupId>
             <artifactId>agmip-core</artifactId>
-            <version>0.8-SNAPSHOT</version>
+            <version>0.8</version>
         </dependency>
         <dependency>
             <groupId>com.yammer.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>0.3.1</version>
+            <version>0.4.2</version>
         </dependency>
         <dependency>
             <groupId>com.basho.riak</groupId>
