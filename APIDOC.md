@@ -39,6 +39,7 @@ Cache resources are used to store commonly accessed information in a quick fashi
 __GET__ ```/cache/map```
 
 Returns a list of all points currently on the map with associated keys in the following format.
+
 ```[{"lat":"12.34", "lon":"12.34", "key":"abc123"},...]```
 
 __GET__ ```/cache/countries```
@@ -49,5 +50,6 @@ Returns a list of all unique ```FL_LOC_1``` values.
 __GET__ ```/cache/crops```
 
 Returns a list of all unique ```CRID``` values.
+
 ```["MAZ","BWH",...]```
 
