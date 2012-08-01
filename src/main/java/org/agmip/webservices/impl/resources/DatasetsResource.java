@@ -3,6 +3,7 @@ package org.agmip.webservices.impl.resources;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,13 +37,13 @@ import com.basho.riak.client.http.util.Constants;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
-import org.agmip.core.types.AdvancedHashMap;
 import org.agmip.webservices.impl.api.CleanDataset;
 import org.agmip.webservices.impl.api.Dataset;
 import org.agmip.webservices.impl.core.MetadataFilter;
 import org.agmip.webservices.impl.managers.AkkaCacheManager;
+import org.agmip.util.MapUtil;
 
-@Path("/datasets/")
+@Path("/datasets")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class DatasetsResource {
@@ -73,27 +74,30 @@ public class DatasetsResource {
     @POST
     @Timed
     public Dataset.DatasetInfo createDataset(@Valid CleanDataset pureData) {
+        LOG.info("Creating new dataset...");
         ActorRef countryCache = cacheManager.getCountryCache();
         ActorRef cropCache    = cacheManager.getCropCache();
         ActorRef mapCache     = cacheManager.getMapCache();
+        LOG.info("Loading caches....");
         // A simple cache extraction filter.
         ArrayList mapCacheInfo = new ArrayList();
 
         // Extract the required metadata fields from the data first.
-        AdvancedHashMap<String,Object> dataset = pureData.getData();
-        AdvancedHashMap<String,Object> dsMetadata = dataset.extract(MetadataFilter.INSTANCE.getRequiredMetadata());
+        LinkedHashMap<String, Object> dataset = pureData.getData();
+        LOG.info("Extracting required Metadata");
+        LinkedHashMap<String, String> dsMetadata = MapUtil.extract(dataset, MetadataFilter.INSTANCE.getRequiredMetadata());
         if(dsMetadata.size() == 0) {
             throw new WebApplicationException(Response.status(422).entity("Missing required metadata").build());
         }
         // Extract the rest of the metadata, now that the required is true.
-        dsMetadata.put(dataset.extract(MetadataFilter.INSTANCE.getMetadata()));
+        dsMetadata.putAll(MapUtil.extract(dataset, MetadataFilter.INSTANCE.getMetadata()));
         String crc = (String) dataset.get("system_crc");
         Dataset data = new Dataset(dataset);
         if(crc != null && ! crc.equals(data.getCrc())) {
            throw new WebApplicationException(Response.status(422).entity("Failed CRC check").build()); 
         }
         try {
-            if(bucket.fetch(data.getId(), AdvancedHashMap.class).execute() != null) {
+            if(bucket.fetch(data.getId(), LinkedHashMap.class).execute() != null) {
                 throw new WebApplicationException(Response.status(400).entity("This experiment already exists in the database").build());
             }
             // Overwrite any ID given by the user. We should generate it.
@@ -113,8 +117,8 @@ public class DatasetsResource {
 
             //Serialize the data into JSON
             obj.setValue(mapper.writeValueAsBytes(dsMetadata));
-            for(Map.Entry<String,Object> e : dsMetadata.entrySet()) {
-                obj.addIndex(e.getKey(), e.getValue().toString());
+            for(Map.Entry<String,String> e : dsMetadata.entrySet()) {
+                obj.addIndex(e.getKey(), e.getValue());
             }
             metabucket.store(obj).execute();
         } catch(RiakException e) {
@@ -133,7 +137,7 @@ public class DatasetsResource {
     public Dataset fetchDataset(@PathParam("id") String id) {
         Dataset dataset;
         try {
-           AdvancedHashMap<String,Object> data = bucket.fetch(id, AdvancedHashMap.class).execute();
+           LinkedHashMap<String,Object> data = bucket.fetch(id, LinkedHashMap.class).execute();
            if(data == null) {
                throw new WebApplicationException(Response.status(404).entity("This id does not exist").build());
            }

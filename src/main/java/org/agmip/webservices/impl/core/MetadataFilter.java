@@ -1,8 +1,9 @@
 package org.agmip.webservices.impl.core;
 
+import java.util.LinkedHashMap;
+
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import org.agmip.core.types.AdvancedHashMap;
 
 public enum MetadataFilter {
     INSTANCE;
@@ -10,7 +11,7 @@ public enum MetadataFilter {
     private final CopyOnWriteArraySet<String> metadata = new CopyOnWriteArraySet<String>();
     private final CopyOnWriteArraySet<String> required = new CopyOnWriteArraySet<String>();
     private final CopyOnWriteArraySet<String> indexed  = new CopyOnWriteArraySet<String>();
-    private final AdvancedHashMap<String, Integer> weights = new AdvancedHashMap();
+    private final LinkedHashMap<String, Integer> weights = new LinkedHashMap();
 
     MetadataFilter() {}
 
@@ -26,7 +27,7 @@ public enum MetadataFilter {
         return indexed;
     }
     
-    public AdvancedHashMap getWeights() {
+    public LinkedHashMap getWeights() {
         return weights;
     }
 

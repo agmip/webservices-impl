@@ -14,8 +14,7 @@ import com.basho.riak.client.RiakException;
 import com.basho.riak.client.bucket.Bucket;
 
 import java.util.ArrayList;
-
-import org.agmip.core.types.AdvancedHashMap;
+import java.util.LinkedHashMap;
 
 public class AkkaCacheManager implements Managed {
     private ActorSystem cacheSystem;
@@ -59,13 +58,13 @@ public class AkkaCacheManager implements Managed {
 
     // Messages
     static class Map {
-        private final AdvancedHashMap mapInfo;
+        private final LinkedHashMap mapInfo;
 
-        public Map(AdvancedHashMap mapInfo) {
+        public Map(LinkedHashMap mapInfo) {
             this.mapInfo = mapInfo;
         }
 
-        public AdvancedHashMap getMapInfo() {
+        public LinkedHashMap getMapInfo() {
             return mapInfo;
         }
     }
@@ -149,7 +148,7 @@ public class AkkaCacheManager implements Managed {
         public void onReceive(Object message) throws RiakException {
             if( message instanceof Map ) {
                 Map m = (Map) message;
-                ArrayList<AdvancedHashMap<String, String>> cache = bucket.fetch("map", ArrayList.class).execute();
+                ArrayList<LinkedHashMap<String, String>> cache = bucket.fetch("map", ArrayList.class).execute();
                 if( ! cache.contains(m) ) {
                     LOG.debug("Added new MapPoint to Map Cache");
                     cache.add(m.getMapInfo());

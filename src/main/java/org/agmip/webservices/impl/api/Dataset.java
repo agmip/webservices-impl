@@ -1,11 +1,11 @@
 package org.agmip.webservices.impl.api;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import com.yammer.dropwizard.logging.Log;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
-import org.agmip.core.types.AdvancedHashMap;
 
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashFunction;
@@ -46,22 +46,22 @@ public class Dataset extends CleanDataset {
     public Dataset() {
         this.id = "";
         this.crc = "";
-        this.data = new AdvancedHashMap();
+        this.data = new LinkedHashMap();
     }
 
-    public Dataset(AdvancedHashMap<String,Object> data) {
+    public Dataset(LinkedHashMap<String,Object> data) {
         this.data = data;
         this.id = this.cheapCRC();
         this.crc = this.cheapCRC();
     }
 
-    public Dataset(String id, AdvancedHashMap<String,Object> data) {
+    public Dataset(String id, LinkedHashMap<String,Object> data) {
         this.data = data;
         this.id = id;
         this.crc = this.cheapCRC();
     }
 
-    public Dataset(String id, String crc, AdvancedHashMap<String,Object> data) {
+    public Dataset(String id, String crc, LinkedHashMap<String,Object> data) {
         this.data = data;
         this.id = id;
         this.crc = crc;

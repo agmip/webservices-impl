@@ -1,6 +1,7 @@
 package org.agmip.webservices.impl.resources;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,7 +21,8 @@ import com.basho.riak.client.raw.query.indexes.BinValueQuery;
 import com.basho.riak.client.raw.query.indexes.IndexQuery;
 import com.yammer.dropwizard.logging.Log;
 import com.yammer.metrics.annotation.Timed;
-import org.agmip.core.types.AdvancedHashMap;
+
+import static org.agmip.util.MapUtil.*;
 import org.agmip.webservices.impl.core.MetadataFilter;
 
 /**
@@ -92,7 +94,7 @@ public class QueryResource {
     private String findBestParam(Set params) {
         int winWeight = 11; // Our amps don't go to 11 :(
         String winParam = "";
-        AdvancedHashMap weights = MetadataFilter.INSTANCE.getWeights();
+        LinkedHashMap weights = MetadataFilter.INSTANCE.getWeights();
         Set fields = MetadataFilter.INSTANCE.getIndexedMetadata();
         Iterator i = params.iterator();
         // This SHOULD get anything that is indexed in the search,
@@ -100,7 +102,8 @@ public class QueryResource {
         while(i.hasNext()) {
             String var = i.next().toString();
             if(fields.contains(var)) {
-                int weight = Integer.parseInt(weights.getOr(var, "10").toString());
+                //int weight = Integer.parseInt(weights.getOr(var, "10").toString());
+                int weight = Integer.parseInt(getValueOr(weights, var, "10"));
                 if( weight < winWeight ) {
                     winWeight = weight;
                     winParam = var;
