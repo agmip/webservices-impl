@@ -25,6 +25,8 @@ import javax.ws.rs.core.Response;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import akka.actor.ActorRef;
+
 import com.basho.riak.client.IRiakClient;
 import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;
@@ -38,6 +40,7 @@ import org.agmip.core.types.AdvancedHashMap;
 import org.agmip.webservices.impl.api.CleanDataset;
 import org.agmip.webservices.impl.api.Dataset;
 import org.agmip.webservices.impl.core.MetadataFilter;
+import org.agmip.webservices.impl.managers.AkkaCacheManager;
 
 @Path("/datasets/")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -52,8 +55,9 @@ public class DatasetsResource {
     private final Bucket bucket;
     private final Bucket metabucket;
     private final String mdBucketName;
+    private final AkkaCacheManager cacheManager;
 
-    public DatasetsResource(IRiakClient riak, String bucketName, IRiakClient mdriak, String mdBucketName) {
+    public DatasetsResource(IRiakClient riak, String bucketName, IRiakClient mdriak, String mdBucketName, AkkaCacheManager cacheManager) {
         this.riak = riak;
         this.mdriak = mdriak;
         this.mdBucketName = mdBucketName;
@@ -63,11 +67,18 @@ public class DatasetsResource {
         } catch (RiakException e) {
             throw new WebApplicationException(Response.status(400).entity(e.getMessage()).build());
         }
+        this.cacheManager = cacheManager;
     }
 
     @POST
     @Timed
     public Dataset.DatasetInfo createDataset(@Valid CleanDataset pureData) {
+        ActorRef countryCache = cacheManager.getCountryCache();
+        ActorRef cropCache    = cacheManager.getCropCache();
+        ActorRef mapCache     = cacheManager.getMapCache();
+        // A simple cache extraction filter.
+        ArrayList mapCacheInfo = new ArrayList();
+
         // Extract the required metadata fields from the data first.
         AdvancedHashMap<String,Object> dataset = pureData.getData();
         AdvancedHashMap<String,Object> dsMetadata = dataset.extract(MetadataFilter.INSTANCE.getRequiredMetadata());
@@ -112,6 +123,7 @@ public class DatasetsResource {
             throw new WebApplicationException(Response.status(400).entity(e.getMessage()).build());
         }
         // At this point, put information into the caches. Start with a map cache.
+        
         return data.getDatasetInfo();
     }
 

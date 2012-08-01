@@ -8,20 +8,22 @@ import akka.actor.UntypedActor;
 import com.yammer.dropwizard.lifecycle.Managed;
 import com.yammer.dropwizard.logging.Log;
 
-import org.agmip.core.types.AdvancedHashMap;
-
 import com.basho.riak.client.IRiakClient;
 import com.basho.riak.client.IRiakObject;
 import com.basho.riak.client.RiakException;
-import com.basho.riak.bucket.Bucket;
+import com.basho.riak.client.bucket.Bucket;
+
+import java.util.ArrayList;
+
+import org.agmip.core.types.AdvancedHashMap;
 
 public class AkkaCacheManager implements Managed {
-    ActorSystem cacheSystem;
-    ActorRef    mapCache;
-    ActorRef    countryCache;
-    ActorRef    cropCache;
+    private ActorSystem cacheSystem;
+    private ActorRef    mapCache;
+    private ActorRef    countryCache;
+    private ActorRef    cropCache;
     
-    IRiakClient riak;
+    private final IRiakClient riak;
 
     public final static Log LOG = Log.forClass(AkkaCacheManager.class);
 
@@ -93,12 +95,68 @@ public class AkkaCacheManager implements Managed {
 
 
     // Actors
-    static class CropCacheWorker extends UntypedActor {
-        public void doCache() {
-
+    static class CountryCacheWorker extends UntypedActor {
+        private final Bucket bucket;
+ 
+        public CountryCacheWorker(IRiakClient riak) throws RiakException {
+            this.bucket = riak.fetchBucket("cache").execute();
         }
-        public void onReceive(Object message) {
+
+        public void onReceive(Object message) throws RiakException {
+            if( message instanceof Country ) {
+                Country c = (Country) message;
+                ArrayList<String> cache = bucket.fetch("country", ArrayList.class).execute();
+                if( ! cache.contains(c) ) {
+                    LOG.debug("Added new Country to the Country cache");
+                    cache.add(c.getCountry());
+                    bucket.store(cache).execute();
+                }
+            } else {
+                unhandled(message);
+            }
+        }
+    }
+    
+    static class CropCacheWorker extends UntypedActor {
+        private final Bucket bucket;
+
+        public CropCacheWorker(IRiakClient riak) throws RiakException {
+            this.bucket = riak.fetchBucket("cache").execute();
+        }
+
+        public void onReceive(Object message) throws RiakException {
             if( message instanceof Crop ) {
+                Crop c = (Crop) message;
+                ArrayList<String> cache = bucket.fetch("crop", ArrayList.class).execute();
+                if( ! cache.contains(c) ) {
+                    LOG.debug("Added new Crop to the Crop cache");
+                    cache.add(c.getCrop());
+                    bucket.store(cache).execute();
+                }
+            } else {
+                unhandled(message);
+            }
+        }
+    }
+
+    static class MapInfoCacheWorker extends UntypedActor {
+        private final Bucket bucket;
+
+        public MapInfoCacheWorker(IRiakClient riak) throws RiakException {
+            this.bucket = riak.fetchBucket("cache").execute();
+        }
+
+        public void onReceive(Object message) throws RiakException {
+            if( message instanceof Map ) {
+                Map m = (Map) message;
+                ArrayList<AdvancedHashMap<String, String>> cache = bucket.fetch("map", ArrayList.class).execute();
+                if( ! cache.contains(m) ) {
+                    LOG.debug("Added new MapPoint to Map Cache");
+                    cache.add(m.getMapInfo());
+                    bucket.store(cache).execute();
+                }
+            } else {
+                unhandled(message);
             }
         }
     }

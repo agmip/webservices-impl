@@ -28,6 +28,7 @@ public class RestService extends Service<StandaloneConfig> {
     @Override
     protected void initialize(StandaloneConfig config, Environment env) throws RiakException {
         // Configuration
+        final String   metadataFile         = config.getMetadataConfig().getConfigFile();
         final String[] dsRiakHosts          = config.getDatasetConfig().getRiakConfig().getHosts();
         final int      dsRiakMaxConn        = config.getDatasetConfig().getRiakConfig().getMaxConnections();
         final String   dsRiakBucket         = config.getDatasetConfig().getRiakConfig().getBucketName();
@@ -54,10 +55,12 @@ public class RestService extends Service<StandaloneConfig> {
              LOG.debug("Using Http");
              mdRiak = RiakHttpConnectionFactory.newConnection(mdRiakHosts, mdRiakMaxConn).build();
          }
- 
-        env.manage(new MetadataManager("metadata.csv"));
-        env.manage(new AkkaCacheManager());
-        env.addResource(new DatasetsResource(dsRiak, dsRiakBucket, mdRiak, mdRiakBucket));
+
+        LOG.info("Metadata File Location: "+metadataFile);
+        AkkaCacheManager cache = new AkkaCacheManager(mdRiak);
+        env.manage(new MetadataManager(metadataFile));
+        env.manage(cache);
+        env.addResource(new DatasetsResource(dsRiak, dsRiakBucket, mdRiak, mdRiakBucket, cache));
         env.addResource(new QueryResource(mdRiak, mdRiakBucket));
     }
 }
